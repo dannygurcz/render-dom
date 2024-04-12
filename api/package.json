@@ -1,0 +1,11 @@
+{
+  "name": "html-render-api",
+  "version": "1.0.0",
+  "description": "API for rendering HTML from a URL and downloading the file",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "axios": "^0.24.0",
+    "jsdom": "^18.0.0"
+  }
+}
