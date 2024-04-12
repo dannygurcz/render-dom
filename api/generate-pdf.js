@@ -1,22 +1,18 @@
-// generate-pdf.js
-
 const express = require('express');
 const puppeteer = require('puppeteer');
-const path = require('path');
-
 const router = express.Router();
 
 router.get('/', async (req, res) => {
     try {
-        // Render HTML using Puppeteer
+        const { url } = req.query;
+        if (!url) {
+            return res.status(400).send('URL parameter is required.');
+        }
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
-        const htmlFilePath = path.join(__dirname, '..', 'public', 'index.html');
-        await page.goto(`file://${htmlFilePath}`);
+        await page.goto(url);
         const pdfBuffer = await page.pdf();
         await browser.close();
-
-        // Set headers and send PDF as response
         res.contentType('application/pdf');
         res.send(pdfBuffer);
     } catch (error) {

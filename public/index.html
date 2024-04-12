@@ -1,12 +1,42 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic PDF</title>
+    <title>Render HTML and Generate PDF</title>
 </head>
 <body>
-    <h1>Hello, {{ name }}!</h1>
+    <h1>Render HTML and Generate PDF</h1>
+    <form id="renderForm">
+        <label for="urlInput">Enter URL to render:</label><br>
+        <input type="text" id="urlInput" name="urlInput"><br><br>
+        <button type="submit">Render HTML</button>
+    </form>
+
+    <div id="renderedHtml"></div>
+
+    <script>
+        document.getElementById('renderForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const urlInput = document.getElementById('urlInput').value.trim();
+            if (!urlInput) {
+                alert('Please enter a URL to render.');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/render-html?url=${encodeURIComponent(urlInput)}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to render HTML. Status: ${response.status}`);
+                }
+                const htmlContent = await response.text();
+                document.getElementById('renderedHtml').innerHTML = htmlContent;
+            } catch (error) {
+                console.error('Error rendering HTML:', error);
+                document.getElementById('renderedHtml').innerHTML = '<p>Failed to render HTML. Please try again.</p>';
+            }
+        });
+    </script>
 </body>
 </html>

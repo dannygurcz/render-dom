@@ -1,9 +1,6 @@
-// server.js
-
 const express = require('express');
 const path = require('path');
-const renderHtmlRouter = require('./api/render-html');
-const generatePdfRouter = require('./api/generate-pdf');
+const puppeteer = require('puppeteer');
 
 const app = express();
 
@@ -11,10 +8,43 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Route for rendering HTML
-app.use('/render-html', renderHtmlRouter);
+app.get('/render-html', async (req, res) => {
+    try {
+        const { url } = req.query;
+        if (!url) {
+            return res.status(400).send('URL parameter is required.');
+        }
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto(url);
+        const htmlContent = await page.content();
+        await browser.close();
+        res.send(htmlContent);
+    } catch (error) {
+        console.error('Error rendering HTML:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 // Route for generating PDF
-app.use('/generate-pdf', generatePdfRouter);
+app.get('/generate-pdf', async (req, res) => {
+    try {
+        const { url } = req.query;
+        if (!url) {
+            return res.status(400).send('URL parameter is required.');
+        }
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto(url);
+        const pdfBuffer = await page.pdf();
+        await browser.close();
+        res.contentType('application/pdf');
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 // Start the server
 const PORT = process.env.PORT || 3000;

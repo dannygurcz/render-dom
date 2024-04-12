@@ -1,22 +1,19 @@
-// render-html.js
-
 const express = require('express');
-const path = require('path');
-const ejs = require('ejs'); // Assuming you're using EJS as the templating engine
-
+const puppeteer = require('puppeteer');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
     try {
-        // Simulated dynamic data
-        const data = { name: 'John Doe' };
-
-        // Render HTML using EJS
-        const htmlFilePath = path.join(__dirname, '..', 'public', 'index.ejs');
-        const renderedHtml = await ejs.renderFile(htmlFilePath, data);
-
-        // Send rendered HTML as response
-        res.send(renderedHtml);
+        const { url } = req.query;
+        if (!url) {
+            return res.status(400).send('URL parameter is required.');
+        }
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto(url);
+        const htmlContent = await page.content();
+        await browser.close();
+        res.send(htmlContent);
     } catch (error) {
         console.error('Error rendering HTML:', error);
         res.status(500).send('Internal Server Error');
